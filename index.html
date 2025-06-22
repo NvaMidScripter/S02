@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScmLinksS02BUY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Rubik', sans-serif;
+    }
+    body {
+      background: #0d0d0d;
+      color: white;
+      overflow-x: hidden;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+    }
+    #notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff0000;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 0 20px rgba(255,0,0,0.8);
+      animation: dropIn 0.5s ease-in-out, dissolveOut 0.5s ease-in-out 2.5s forwards;
+    }
+    @keyframes dropIn {
+      from { opacity: 0; transform: translate(-50%, -50px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    @keyframes dissolveOut {
+      to { opacity: 0; transform: translate(-50%, -20px); }
+    }
+    #settingsBtn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #ff0000;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 1001;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #settingsBtn:hover {
+      transform: rotate(90deg) scale(1.2);
+      box-shadow: 0 0 15px rgba(255,0,0,0.8);
+    }
+    #settingsPanel {
+      position: fixed;
+      top: 50px;
+      right: 10px;
+      background: rgba(0,0,0,0.9);
+      border: 2px solid #ff0000;
+      border-radius: 10px;
+      padding: 20px;
+      width: 300px;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 0 20px rgba(255,0,0,0.7);
+      animation: slideInSettings 0.3s ease-in-out;
+    }
+    @keyframes slideInSettings {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    #settingsPanel h3 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #ff0000;
+      text-shadow: 0 0 10px rgba(255,0,0,0.7);
+    }
+    #settingsPanel .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: #ff0000;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    #settingsPanel .close-btn:hover {
+      transform: scale(1.3);
+    }
+    #settingsPanel label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      color: #888;
+    }
+    #settingsPanel input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ff0000;
+      border-radius: 4px;
+      vertical-align: middle;
+      cursor: pointer;
+      position: relative;
+      margin-right: 10px;
+    }
+    #settingsPanel input[type="checkbox"]:checked {
+      background: #ff0000;
+    }
+    #settingsPanel input[type="checkbox"]:checked::after {
+      content: '✔';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 14px;
+    }
+    #settingsPanel input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    #settingsPanel input[type="color"]:focus {
+      transform: scale(1.2);
+      box-shadow: 0 0 10px rgba(255,0,0,0.7);
+    }
+    #settingsPanel button {
+      margin-top: 20px;
+      padding: 10px;
+      background: #ff0000;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      width: 100%;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    #settingsPanel button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.6), transparent);
+      transition: left 0.5s ease;
+      animation: blinkGlare 2s infinite;
+    }
+    #settingsPanel button:hover::before {
+      left: 100%;
+    }
+    #settingsPanel button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,0,0,0.8);
+    }
+    header {
+      padding: 20px;
+      text-align: center;
+      background-color: #1a1a1a;
+      box-shadow: 0 0 20px rgba(255,0,0,0.7);
+      animation: fadeIn 1.2s ease-in-out;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.5), transparent);
+      animation: headerShine 3s infinite;
+    }
+    header h1 {
+      font-size: clamp(2rem, 6vw, 2.5rem);
+      color: #ff0000;
+      text-shadow: 0 0 15px rgba(255,0,0,0.9), 0 0 30px rgba(255,255,0,0.5);
+      animation: pulseText 1.5s infinite, hologram 4s infinite;
+    }
+    header p {
+      color: #888;
+      margin-top: 10px;
+      font-size: clamp(1rem, 3vw, 1.1rem);
+      transition: color 0.3s ease;
+    }
+    header p:hover {
+      color: #ff0000;
+      text-shadow: 0 0 10px rgba(255,0,0,0.7);
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      background: #121212;
+      padding: 10px;
+      box-shadow: inset 0 -1px 0 #333;
+      animation: slideIn 1.2s ease-in-out;
+      position: relative;
+      z-index: 10;
+    }
+    nav button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 10px;
+      flex: 1 1 auto;
+      max-width: 150px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    }
+    nav button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.6), transparent);
+      transition: left 0.4s ease;
+      animation: blinkGlare 2s infinite;
+    }
+    nav button::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #ff0000;
+      transition: width 0.4s ease;
+    }
+    nav button:hover {
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 5px 20px rgba(255,0,0,0.8);
+      filter: brightness(1.2);
+    }
+    nav button:hover::before {
+      left: 100%;
+    }
+    nav button:hover::after {
+      width: 100%;
+    }
+    nav button:active {
+      transform: scale(0.95);
+      filter: brightness(0.8);
+    }
+    nav button.active {
+      background: #ff0000;
+      animation: pulseBorder 1.5s infinite;
+    }
+    .no-glare nav button::before,
+    .no-glare .animated-btn::before,
+    .no-glare .social-btn::before,
+    .no-glare .create-btn::before,
+    .no-glare .buy-btn::before,
+    .no-glare .tab-btn::before,
+    .no-glare .benefit::before,
+    .no-glare #cookieNotice button::before,
+    .no-glare .contact-btn::before,
+    .no-glare #settingsPanel button::before,
+    .no-glare .login-form button::before {
+      display: none;
+    }
+    .no-animations * {
+      animation: none !important;
+      transition: none !important;
+    }
+    @keyframes pulseBorder {
+      0% { box-shadow: 0 0 10px #ff0000; }
+      50% { box-shadow: 0 0 20px #ff0000, 0 0 30px rgba(255,255,0,0.5); }
+      100% { box-shadow: 0 0 10px #ff0000; }
+    }
+    @keyframes blinkGlare {
+      0%, 20%, 80%, 100% { opacity: 0; }
+      30%, 70% { opacity: 1; }
+    }
+    section {
+      padding: 30px 15px;
+      display: none;
+      text-align: center;
+      font-size: clamp(1rem, 2.5vw, 1.1rem);
+      animation: fadeInUp 1.2s ease-in-out;
+    }
+    section.active {
+      display: block;
+    }
+    .animated-btn, .social-btn, .create-btn, .contact-btn {
+      margin: 10px;
+      padding: 12px 25px;
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      border: none;
+      background: #ff0000;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    }
+    .animated-btn::before, .social-btn::before, .create-btn::before, .contact-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.6), transparent);
+      transition: left 0.5s ease;
+      animation: blinkGlare 2s infinite;
+    }
+    .animated-btn:hover::before, .social-btn:hover::before, .create-btn:hover::before, .contact-btn:hover::before {
+      left: 100%;
+    }
+    .animated-btn:hover, .social-btn:hover, .contact-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(255,0,0,0.8);
+      filter: brightness(1.3);
+    }
+    .animated-btn:active, .social-btn:active, .contact-btn:active {
+      transform: scale(0.9);
+      filter: brightness(0.7);
+    }
+    .social-btn.flash {
+      animation: flashError 0.5s ease-in-out;
+    }
+    @keyframes flashError {
+      0%, 50%, 100% { background: #ff0000; }
+      25%, 75% { background: #8b0000; }
+    }
+    .social-btn.active {
+      background: linear-gradient(45deg, #ff0000, #ff3333);
+      animation: pulseBorder 1.5s infinite;
+      position: relative;
+    }
+    .social-btn.active::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2), transparent);
+      animation: sparkle 2s infinite;
+    }
+    .create-btn {
+      background: linear-gradient(45deg, #ff0000, #ff3333, #ff6666);
+      background-size: 200%;
+      animation: gradientRotate 3s linear infinite;
+    }
+    .create-btn:hover {
+      transform: translateY(-10px) scale(1.2);
+      box-shadow: 0 0 30px rgba(255,0,0,1), 0 0 50px rgba(255,255,0,0.5);
+      filter: brightness(1.4);
+    }
+    .create-btn:active {
+      transform: scale(0.95);
+    }
+    .create-btn::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: radial-gradient(circle, rgba(255,255,255,0.8), transparent);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    .create-btn:active::after {
+      width: 200px;
+      height: 200px;
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      transition: all 0.5s ease;
+    }
+    .contact-btn {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      margin: 10px auto;
+    }
+    @keyframes gradientRotate {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes sparkle {
+      0% { transform: rotate(0deg) scale(1); opacity: 0.3; }
+      50% { transform: rotate(180deg) scale(1.2); opacity: 0.5; }
+      100% { transform: rotate(360deg) scale(1); opacity: 0.3; }
+    }
+    .tariff-box {
+      background: #1c1c1c;
+      border: 2px solid #ff0000;
+      padding: 20px;
+      width: 100%;
+      max-width: 600px;
+      border-radius: 15px;
+      margin: 15px auto;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .tariff-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent, rgba(139,0,0,0.3), transparent);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      animation: waveEffect 3s infinite;
+    }
+    .tariff-box:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 30px rgba(255,0,0,0.9);
+    }
+    .tariff-box:hover::before {
+      opacity: 1;
+    }
+    @keyframes waveEffect {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    .tariff-details {
+      margin-top: 15px;
+      text-align: left;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+    }
+    .tariff-details p {
+      margin: 8px 0;
+      position: relative;
+      padding-left: 20px;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .tariff-details p::before {
+      content: '🔥';
+      position: absolute;
+      left: 0;
+      transition: transform 0.3s ease;
+    }
+    .tariff-details p:hover {
+      transform: translateX(10px);
+      color: #ff0000;
+      text-shadow: 0 0 10px rgba(255,0,0,0.7);
+    }
+    .tariff-details p:hover::before {
+      transform: scale(1.3);
+    }
+    .buy-btn {
+      display: none;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #ff0000;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      cursor: pointer;
+      animation: smoothSlideUp 1s ease-in-out forwards;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s ease;
+    }
+    .buy-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.6), transparent);
+      transition: left 0.5s ease;
+      animation: blinkGlare 2s infinite;
+    }
+    .buy-btn:hover::before {
+      left: 100%;
+    }
+    .buy-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(255,0,0,0.8);
+    }
+    .buy-btn.show {
+      display: inline-block;
+    }
+    .link-input {
+      padding: 12px;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      background: #222;
+      border: 1px solid #ff0000;
+      color: white;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      margin: 15px auto;
+      display: block;
+      outline: none;
+      transition: all 0.3s ease;
+      animation: inputPulse 2s infinite;
+    }
+    .link-input.error {
+      animation: shake 0.5s ease-in-out;
+    }
+    .link-input:focus {
+      border-color: #ff3333;
+      box-shadow: 0 0 15px rgba(255,0,0,0.9);
+      transform: scale(1.03);
+      animation: none;
+    }
+    .link-input::placeholder {
+      color: #888;
+      transition: opacity 0.3s ease;
+    }
+    .link-input:focus::placeholder {
+      opacity: 0;
+    }
+    @keyframes inputPulse {
+      0% { box-shadow: 0 0 5px rgba(255,0,0,0.5); }
+      50% { box-shadow: 0 0 15px rgba(255,0,0,0.8); }
+      100% { box-shadow: 0 0 5px rgba(255,0,0,0.5); }
+    }
+    .link-error {
+      color: #ff0000;
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      margin-top: 5px;
+      display: none;
+      animation: shake 0.5s ease-in-out;
+    }
+    .social-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    @keyframes smoothSlideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes pulseText {
+      0% { text-shadow: 0 0 10px #ff0000, 0 0 20px rgba(255,255,0,0.5); }
+      50% { text-shadow: 0 0 20px #ff0000, 0 0 30px rgba(255,255,0,0.8); }
+      100% { text-shadow: 0 0 10px #ff0000, 0 0 20px rgba(255,255,0,0.5); }
+    }
+    @keyframes hologram {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.2) opacity(0.9); }
+    }
+    @keyframes headerShine {
+      0% { left: -100%; }
+      50% { left: 100%; }
+      100% { left: -100%; }
+    }
+    @keyframes flicker {
+      0%, 20%, 50%, 80%, 100% { opacity: 1; }
+      10%, 30%, 60%, 90% { opacity: 0.7; }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    .tab-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+      justify-content: center;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      background-color: #222;
+      color: white;
+      cursor: pointer;
+      border-radius: 10px;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      flex: 1 1 auto;
+      max-width: 120px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .tab-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.5), transparent);
+      transition: left 0.4s ease;
+      animation: blinkGlare 2s infinite;
+    }
+    .tab-btn.active::before, .tab-btn:hover::before {
+      left: 100%;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background-color: #ff0000;
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(255,0,0,0.8);
+    }
+    .tab-content {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .benefit {
+      background-color: #1a1a1a;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .benefit::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.4), transparent);
+      transition: left 0.5s ease;
+      animation: blinkGlare 2s infinite;
+    }
+    .benefit:hover::before {
+      left: 100%;
+    }
+    .benefit:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(255,0,0,0.7);
+    }
+    #cookieNotice {
+      position: fixed;
+      bottom: 0;
+      background: #222;
+      color: #fff;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      z-index: 999;
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      animation: slideUp 1s ease-in-out;
+      box-shadow: 0 -5px 15px rgba(255,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #cookieNotice button {
+      margin: 5px;
+      padding: 8px 15px;
+      background: #ff0000;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #cookieNotice button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.4), transparent);
+      transition: left 0.5s ease;
+      animation: blinkGlare 2s infinite;
+    }
+    #cookieNotice button:hover::before {
+      left: 100%;
+    }
+    #cookieNotice button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255,0,0,0.8);
+    }
+    #cookieNotice button:active {
+      transform: scale(0.95);
+    }
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 400px;
+      margin: 20px auto;
+      animation: fadeInUp 1s ease-in-out;
+    }
+    .login-form label {
+      text-align: left;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      color: #888;
+      transition: color 0.3s ease;
+    }
+    .login-form label:hover {
+      color: #ff0000;
+      text-shadow: 0 0 10px rgba(255,0,0,0.7);
+    }
+    .login-form input {
+      padding: 12px;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      background: #222;
+      border: 1px solid #ff0000;
+      color: white;
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.3s ease;
+      animation: enterPulse 2s infinite;
+    }
+    .login-form input:focus {
+      border-color: #ff3333;
+      box-shadow: 0 0 15px rgba(255,0,0,0.9);
+      transform: scale(1.03);
+      animation: none;
+    }
+    .login-form input::placeholder {
+      color: #888;
+      transition: opacity 0.3s ease;
+    }
+    .login-form input:focus::placeholder {
+      opacity: 0;
+    }
+    .login-form button {
+      padding: 12px;
+      background: #ff0000;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .login-form button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,0,0,0.6), transparent);
+      transition: left 0.5s ease;
+      animation: blinkGlare 2s infinite;
+    }
+    .login-form button:hover::before {
+      left: 100%;
+    }
+    .login-form button:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(255,0,0,0.8);
+    }
+    .login-form button:active {
+      transform: scale(0.95);
+    }
+    .error-message {
+      color: #ff0000;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      margin-top: 10px;
+      display: none;
+      animation: shake 0.5s ease-in-out;
+    }
+    @media (max-width: 600px) {
+      header {
+        padding: 15px 10px;
+      }
+      nav {
+        flex-direction: column;
+        gap: 8px;
+      }
+      nav button {
+        max-width: 100%;
+        padding: 12px;
+      }
+      section {
+        padding: 20px 10px;
+      }
+      .tariff-box {
+        padding: 15px;
+        margin: 10px auto;
+      }
+      .benefits-grid {
+        grid-template-columns: 1fr;
+      }
+      .tab-buttons {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .tab-btn {
+        max-width: 100%;
+        padding: 12px;
+      }
+      .login-form {
+        max-width: 100%;
+        padding: 0 10px;
+      }
+      #cookieNotice {
+        padding: 10px;
+        flex-direction: column;
+      }
+      #cookieNotice p {
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+      }
+      #cookieNotice button {
+        padding: 10px;
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+      }
+      .social-buttons {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .animated-btn, .social-btn, .create-btn, .contact-btn {
+        width: 100%;
+        max-width: 200px;
+        margin: 5px auto;
+      }
+      #notification {
+        width: 90%;
+        font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      }
+      #settingsPanel {
+        width: 90%;
+        right: 5%;
+      }
+      #settingsBtn {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2rem;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tariff-box:hover, .animated-btn:hover, .social-btn:hover, .create-btn:hover, .buy-btn:hover, .tab-btn:hover, .benefit:hover, #cookieNotice button:hover, .contact-btn:hover, #settingsBtn:hover, #settingsPanel button:hover {
+        box-shadow: none;
+      }
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div id="notification"></div>
+  <button id="settingsBtn">⚙️</button>
+  <div id="settingsPanel">
+    <button class="close-btn" onclick="toggleSettings()">×</button>
+    <h3>Настройки</h3>
+    <label><input type="checkbox" id="disableGlare"> Выключить блики</label>
+    <label><input type="checkbox" id="disableEffects"> Выключить эффекты</label>
+    <label><input type="checkbox" id="disableAnimations"> Выключить анимации</label>
+    <label>Цвет фона: <input type="color" id="bgColor" value="#0d0d0d"></label>
+    <label>Цвет курсора огоньков: <input type="color" id="cursorColor" value="#ff0000"></label>
+    <label>Цвет кнопок: <input type="color" id="buttonColor" value="#ff0000"></label>
+    <label>Цвет блоков: <input type="color" id="blockColor" value="#1c1c1c"></label>
+    <button onclick="resetSettings()">Сбросить настройки</button>
+  </div>
+  <header>
+    <h1>ScmLinksS02BUY</h1>
+    <p>Салам🖐</p>
+  </header>
+  <nav>
+    <button onclick="showSection('home')" class="active">Home</button>
+    <button onclick="showSection('about')">About</button>
+    <button onclick="showSection('contact')">Contact</button>
+    <button onclick="showSection('scam-steps')">Как скамить</button>
+    <button onclick="showSection('links')">Ссылки</button>
+    <button onclick="showSection('login')">Личный кабинет</button>
+  </nav>
+
+  <section id="home" class="active">
+    <h2>Тариф</h2>
+    <p>Здравствуйте! Вы хотите купить ключ ScamLink для регистрации.</p>
+    <p>Наши менеджеры стараются быть полезными как до оплаты, так и после, что служит гарантией проекта.</p>
+    <p><strong>Telegram: <a href="https://t.me/S02Oficcial" target="_blank">@S02Oficcial</a></strong></p>
+    <div class="tariff-box" onclick="toggleBuy(this)">
+      <h3>Extra ScamLink<br><span>2300G / 800₽</span></h3>
+      <div class="tariff-details">
+        <p>Ключ для регистрации</p>
+        <p>Доступ к скам ссылке навсегда</p>
+        <p>Полное обучение (Ролик 20 минут)</p>
+        <p>Приватный чат с пользователями чита</p>
+        <p>Сделаем под ваш хвид устройства</p>
+        <p>Перенос ключа на другой девайс</p>
+        <p>1 ключ на несколько устройств</p>
+        <p>Софт для Standoff 2 токен-вход</p>
+        <p>Поддержка обновлений</p>
+        <p>Личный контакт с Админом</p>
+      </div>
+      <button class="buy-btn" onclick="event.stopPropagation(); window.open('https://t.me/S02Oficcial', '_blank')">Купить</button>
+    </div>
+    <div class="tariff-box" onclick="toggleBuy(this)">
+      <h3>Навсегда<br><span>1990G / 699₽</span></h3>
+      <div class="tariff-details">
+        <p>Ключ для регистрации</p>
+        <p>Доступ к скам ссылке навсегда</p>
+        <p>Софт для Standoff 2 токен-вход</p>
+        <p>Поддержка обновлений</p>
+        <p>Личный контакт с Админом</p>
+      </div>
+      <button class="buy-btn" onclick="event.stopPropagation(); window.open('https://t.me/S02Oficcial', '_blank')">Купить</button>
+    </div>
+    <div class="tariff-box" onclick="toggleBuy(this)">
+      <h3>На 7 Дней<br><span>1000G / 499₽</span></h3>
+      <div class="tariff-details">
+        <p>Ключ для регистрации</p>
+        <p>Доступ к скам ссылке на 7 дней</p>
+        <p>Токен-вход</p>
+      </div>
+      <button class="buy-btn" onclick="event.stopPropagation(); window.open('https://t.me/S02Oficcial', '_blank')">Купить</button>
+    </div>
+    <div class="tariff-box" onclick="toggleBuy(this)">
+      <h3>На 3 Дня<br><span>600G / 299₽</span></h3>
+      <div class="tariff-details">
+        <p>Ключ для регистрации</p>
+        <p>Доступ к скам ссылке на 3 дня</p>
+        <p>Токен-вход</p>
+        <p>Поддержка обновлений</p>
+      </div>
+      <button class="buy-btn" onclick="event.stopPropagation(); window.open('https://t.me/S02Oficcial', '_blank')">Купить</button>
+    </div>
+    <div class="tariff-box" onclick="toggleBuy(this)">
+      <h3>На 1 День<br><span>300G / 149₽</span></h3>
+      <div class="tariff-details">
+        <p>Ключ для регистрации</p>
+        <p>Доступ к скам ссылке на 1 день</p>
+        <p>Токен-вход</p>
+      </div>
+      <button class="buy-btn" onclick="event.stopPropagation(); window.open('https://t.me/S02Oficcial', '_blank')">Купить</button>
+    </div>
+  </section>
+
+  <section id="scam-steps" class="tariff-box">
+    <h2>Как скамить</h2>
+    <h3>СКАМ ССЫЛКОЙ</h3>
+    <p><strong>Как это работает?</strong></p>
+    <div class="tab-buttons">
+      <button onclick="showTab(1)" class="tab-btn active">Этап 1</button>
+      <button onclick="showTab(2)" class="tab-btn">Этап 2</button>
+      <button onclick="showTab(3)" class="tab-btn">Этап 3</button>
+    </div>
+    <div class="tab-content active" id="tab1">
+      <p><strong>1. Создание скам-ссылки</strong><br>Зарегистрировавшись в кабинете, вы можете создать особую ссылку. Она нужна для получения токена жертвы.</p>
+    </div>
+    <div class="tab-content" id="tab2">
+      <p><strong>2. Получение токена мамонта</strong><br>Если вы отправите её кому-то, и он на неё нажмёт, вы получите его токен от аккаунта Standoff.</p>
+    </div>
+    <div class="tab-content" id="tab3">
+      <p><strong>3. Вход на аккаунт</strong><br>С помощью нашего софта можно ввести этот токен и войти на аккаунт. Забирайте себе голду и скины быстро и просто.</p>
+    </div>
+    <hr style="margin: 20px 0; border-color: #ff0000; transition: transform 0.5s ease;">
+    <div class="benefits-grid">
+      <div class="benefit">❤️ <strong>Простота в использовании</strong><br>Красивый и понятный интерфейс</div>
+      <div class="benefit">🔐 <strong>Безопасность</strong><br>Каждая программа проверяется</div>
+      <div class="benefit">📥 <strong>Скачал и всё</strong><br>Никакого рута, всё просто</div>
+      <div class="benefit">🖥️ <strong>Надежные сервера</strong><br>Работают 24/7 без сбоев</div>
+      <div class="benefit">🤖 <strong>Полная автоматизация</strong><br>Поддержка решает только важные вопросы</div>
+      <div class="benefit">☁️ <strong>Облачное хранилище</strong><br>Все токены и данные клиентов в базе</div>
+    </div>
+  </section>
+
+  <section id="links" class="tariff-box">
+    <h2>Выберите вид ссылки:</h2>
+    <input type="text" id="linkInput" class="link-input" placeholder="Вставьте ссылку (https://...)">
+    <p class="link-error" id="linkError">Введите валидную ссылку!</p>
+    <p style="font-size: clamp(0.8rem, 2.5vw, 0.9rem); color: #888; margin: 10px 0;">Скам-ссылку можно создать практически на любую соц-сеть.</p>
+    <h3>Меню</h3>
+    <div class="social-buttons">
+      <button class="social-btn" onclick="selectSocial(this)">WhatsApp</button>
+      <button class="social-btn" onclick="selectSocial(this)">Telegram</button>
+      <button class="social-btn" onclick="selectSocial(this)">YouTube</button>
+      <button class="social-btn" onclick="selectSocial(this)">TikTok</button>
+      <button class="social-btn" onclick="selectSocial(this)">Twitch</button>
+    </div>
+    <button class="create-btn" onclick="checkLinkAndSocial()">Создать</button>
+  </section>
+
+  <section id="about">
+    <div class="tariff-box">
+      <h2>Салам всем дорогие друзья!</h2>
+      <p>Хотите отомстить скамеру?🧐<br><br>Следующее, что вам надо сделать — это забайтить маленького мамонта на ссылку и потом залогиниться через наше приложение, которое вы получите сразу после оплаты или сделки.</p>
+    </div>
+  </section>
+
+  <section id="contact" class="tariff-box">
+    <h2>Контакты</h2>
+    <button class="contact-btn" onclick="window.open('https://t.me/+H9q--GaJJQQxZDYy', '_blank')">Мой Telegram канал</button>
+    <button class="contact-btn" onclick="window.open('https://t.me/+UUuFKc4JpAA5ZWVi', '_blank')">Отзывы</button>
+    <button class="contact-btn" onclick="window.open('https://t.me/S02Oficcial', '_blank')">@S02Oficcial</button>
+  </section>
+
+  <section id="login" class="tariff-box">
+    <h2>Личный кабинет (вход в генератор)</h2>
+    <form class="login-form" onsubmit="validateForm(event)">
+      <label for="login">Login</label>
+      <input type="text" id="login" placeholder="Ваш логин">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Придумайте пароль">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Ваш email для регистрации или входа">
+      <label for="key">Ключ</label>
+      <input type="text" id="key" placeholder="Введите ключ для входа или создания генератора">
+      <button type="submit">Войти</button>
+      <p class="error-message" id="error-message"></p>
+    </form>
+  </section>
+
+  <div id="cookieNotice">
+    <p>Этот сайт использует cookies для улучшения вашего опыта.</p>
+    <button onclick="acceptAllCookies()">Принять все cookies</button>
+    <button onclick="acceptEssentialCookies()">Принять самые важные cookies</button>
+    <button onclick="rejectCookies()">Не принимать cookies</button>
+  </div>
+
+  <script>
+    function safeLocalStorage(key, value) {
+      try {
+        if (value !== undefined) localStorage.setItem(key, value);
+        return localStorage.getItem(key);
+      } catch (e) {
+        console.warn('localStorage недоступен:', e);
+        return null;
+      }
+    }
+
+    function acceptAllCookies() {
+      safeLocalStorage('allCookies', 'true');
+      safeLocalStorage('essentialCookies', null);
+      safeLocalStorage('noCookies', null);
+      document.getElementById('cookieNotice').style.display = 'none';
+    }
+
+    function acceptEssentialCookies() {
+      safeLocalStorage('essentialCookies', 'true');
+      safeLocalStorage('allCookies', null);
+      safeLocalStorage('noCookies', null);
+      document.getElementById('cookieNotice').style.display = 'none';
+    }
+
+    function rejectCookies() {
+      safeLocalStorage('noCookies', 'true');
+      safeLocalStorage('allCookies', null);
+      safeLocalStorage('essentialCookies', null);
+      document.getElementById('cookieNotice').style.display = 'none';
+    }
+
+    if (safeLocalStorage('allCookies') === 'true' || safeLocalStorage('essentialCookies') === 'true' || safeLocalStorage('noCookies') === 'true') {
+      document.getElementById('cookieNotice').style.display = 'none';
+    }
+
+    function showSection(sectionId) {
+      document.querySelectorAll('section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`nav button[onclick="showSection('${sectionId}')"]`).classList.add('active');
+    }
+
+    function showTab(tabNumber) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(`tab${tabNumber}`).classList.add('active');
+      document.querySelector(`.tab-btn[onclick="showTab(${tabNumber})"]`).classList.add('active');
+    }
+
+    function toggleBuy(element) {
+      const buyBtn = element.querySelector('.buy-btn');
+      buyBtn.classList.toggle('show');
+    }
+
+    function validateForm(event) {
+      event.preventDefault();
+      const login = document.getElementById('login').value;
+      const password = document.getElementById('password').value;
+      const email = document.getElementById('email').value;
+      const key = document.getElementById('key').value;
+      const error = document.getElementById('error-message');
+      if (!login || !password || !email || !key) {
+        error.textContent = 'Заполните все поля!';
+        error.style.display = 'block';
+      } else {
+        error.textContent = 'Неверные данные или ключ';
+        error.style.display = 'block';
+      }
+    }
+
+    function showTariffWithNotification() {
+      showSection('home');
+      const notification = document.getElementById('notification');
+      notification.textContent = 'Вы не купили тариф!';
+      notification.style.display = 'block';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+
+    function checkLinkAndSocial() {
+      const linkInput = document.getElementById('linkInput');
+      const linkError = document.getElementById('linkError');
+      const notification = document.getElementById('notification');
+      const selectedSocial = document.querySelector('.social-btn.active');
+      const linkValue = linkInput.value.trim();
+      const isValidLink = /^https?:\/\/[^\s/$.?#].[^\s]*$/.test(linkValue);
+
+      if (!selectedSocial || !isValidLink) {
+        notification.textContent = 'Выберите соцсеть и введите валидную ссылку!';
+        notification.style.display = 'block';
+        setTimeout(() => {
+          notification.style.display = 'none';
+        }, 3000);
+        if (!isValidLink) {
+          linkError.style.display = 'block';
+          linkInput.classList.add('error');
+          setTimeout(() => {
+            linkInput.classList.remove('error');
+          }, 500);
+        }
+        if (!selectedSocial) {
+          document.querySelectorAll('.social-btn').forEach(btn => {
+            btn.classList.add('flash');
+            setTimeout(() => {
+              btn.classList.remove('flash');
+            }, 500);
+          });
+        }
+      } else {
+        showTariffWithNotification();
+      }
+    }
+
+    function selectSocial(button) {
+      document.querySelectorAll('.social-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      button.classList.add('active');
+    }
+
+    const linkInput = document.getElementById('linkInput');
+    const linkError = document.getElementById('linkError');
+    linkInput.addEventListener('input', () => {
+      const value = linkInput.value.trim();
+      const isValidLink = /^https?:\/\/[^\s/$.?#].[^\s]*$/.test(value);
+      if (value === '' || isValidLink) {
+        linkError.style.display = 'none';
+      } else {
+        linkError.style.display = 'block';
+      }
+    });
+
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let cursorColor = '#ff0000';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+    class Particle {
+      constructor(x, y, isFire = false) {
+        this.x = x + (Math.random() - 0.5) * 20;
+        this.y = isFire ? Math.random() * canvas.height : y + (Math.random() - 0.5) * 20;
+        this.size = Math.random() * 5 + 5;
+        this.alpha = 1;
+        this.isFire = isFire;
+        this.speedY = isFire ? -(Math.random() * 1 + 0.5) : 0;
+        this.wave = Math.random() * Math.PI * 2;
+        this.waveSpeed = Math.random() * 0.03 + 0.01;
+      }
+      draw() {
+        ctx.fillStyle = `rgba(${this.isFire ? '200,0,0' : hexToRgb(cursorColor)}, ${this.alpha})`;
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+        this.alpha -= this.isFire ? 0.005 : 0.02;
+        if (this.isFire) {
+          this.y += this.speedY;
+          this.x += Math.sin(this.wave) * 2;
+          this.wave += this.waveSpeed;
+          if (this.y < -this.size) this.y = canvas.height + this.size;
+        }
+      }
+    }
+    function hexToRgb(hex) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `${r},${g},${b}`;
+    }
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles = particles.filter(p => p.alpha > 0);
+      particles.forEach(p => p.draw());
+      if (Math.random() < 0.3 && particles.length < 50) {
+        particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height, true));
+      }
+      requestAnimationFrame(animate);
+    }
+    canvas.addEventListener('mousemove', e => {
+      particles.push(new Particle(e.clientX, e.clientY));
+    });
+    animate();
+
+    function toggleSettings() {
+      const panel = document.getElementById('settingsPanel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function applySettings() {
+      const disableGlare = document.getElementById('disableGlare').checked;
+      const disableEffects = document.getElementById('disableEffects').checked;
+      const disableAnimations = document.getElementById('disableAnimations').checked;
+      const bgColor = document.getElementById('bgColor').value;
+      const cursorCol = document.getElementById('cursorColor').value;
+      const buttonColor = document.getElementById('buttonColor').value;
+      const blockColor = document.getElementById('blockColor').value;
+
+      document.body.classList.toggle('no-glare', disableGlare);
+      document.getElementById('bg').style.display = disableEffects ? 'none' : 'block';
+      document.body.classList.toggle('no-animations', disableAnimations);
+      document.body.style.background = bgColor;
+      cursorColor = cursorCol;
+
+      const customStyles = document.getElementById('customStyles') || document.createElement('style');
+      customStyles.id = 'customStyles';
+      customStyles.textContent = `
+        .animated-btn, .social-btn, .create-btn, .buy-btn, .tab-btn.active, .tab-btn:hover, .contact-btn, #cookieNotice button, .login-form button {
+          background: ${buttonColor} !important;
+        }
+        .social-btn.active {
+          background: linear-gradient(45deg, ${buttonColor}, ${lightenColor(buttonColor, 20)}) !important;
+        }
+        .create-btn {
+          background: linear-gradient(45deg, ${buttonColor}, ${lightenColor(buttonColor, 20)}, ${lightenColor(buttonColor, 40)}) !important;
+        }
+        .tariff-box, .benefit {
+          background: ${blockColor} !important;
+          border-color: ${lightenColor(buttonColor, 20)} !important;
+        }
+        .link-input, .login-form input {
+          border-color: ${lightenColor(buttonColor, 20)} !important;
+        }
+      `;
+      document.head.appendChild(customStyles);
+
+      safeLocalStorage('disableGlare', disableGlare);
+      safeLocalStorage('disableEffects', disableEffects);
+      safeLocalStorage('disableAnimations', disableAnimations);
+      safeLocalStorage('bgColor', bgColor);
+      safeLocalStorage('cursorColor', cursorCol);
+      safeLocalStorage('buttonColor', buttonColor);
+      safeLocalStorage('blockColor', blockColor);
+    }
+
+    function lightenColor(hex, percent) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      const factor = 1 + percent / 100;
+      return `rgb(${Math.min(255, r * factor)}, ${Math.min(255, g * factor)}, ${Math.min(255, b * factor)})`;
+    }
+
+    function resetSettings() {
+      document.getElementById('disableGlare').checked = false;
+      document.getElementById('disableEffects').checked = false;
+      document.getElementById('disableAnimations').checked = false;
+      document.getElementById('bgColor').value = '#0d0d0d';
+      document.getElementById('cursorColor').value = '#ff0000';
+      document.getElementById('buttonColor').value = '#ff0000';
+      document.getElementById('blockColor').value = '#1c1c1c';
+      applySettings();
+    }
+
+    function loadSettings() {
+      document.getElementById('disableGlare').checked = safeLocalStorage('disableGlare') === 'true';
+      document.getElementById('disableEffects').checked = safeLocalStorage('disableEffects') === 'true';
+      document.getElementById('disableAnimations').checked = safeLocalStorage('disableAnimations') === 'true';
+      document.getElementById('bgColor').value = safeLocalStorage('bgColor') || '#0d0d0d';
+      document.getElementById('cursorColor').value = safeLocalStorage('cursorColor') || '#ff0000';
+      document.getElementById('buttonColor').value = safeLocalStorage('buttonColor') || '#ff0000';
+      document.getElementById('blockColor').value = safeLocalStorage('blockColor') || '#1c1c1c';
+      applySettings();
+    }
+
+    document.getElementById('settingsBtn').addEventListener('click', toggleSettings);
+    document.querySelectorAll('#settingsPanel input').forEach(input => {
+      input.addEventListener('change', applySettings);
+    });
+
+    loadSettings();
+    showSection('home');
+  </script>
+</body>
+</html>
